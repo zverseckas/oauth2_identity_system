@@ -12,8 +12,8 @@ defmodule Eeval.Auth.Guardian do
   # end
 
   def resource_from_claims(claims) do
-    resource = Accounts.get_user!(claims["sub"])
-    {:ok,  resource}
+    resource = Accounts.get!(claims["sub"])
+    {:ok, resource}
   end
   # def resource_from_claims(_claims) do
   #   {:error, :reason_for_error}

@@ -1,7 +1,7 @@
-defmodule Eeval.Validators.User do
+defmodule Eeval.Accounts.UserValidator do
   import Ecto.Changeset
 
-  @behaviour Eeval.Validators.Behaviour
+  @behaviour Eeval.Behaviours.Validator
 
   @required_attributes ~w(
     first_name

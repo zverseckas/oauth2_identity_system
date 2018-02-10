@@ -1,6 +1,6 @@
 defmodule Eeval.Accounts.User do
   use Ecto.Schema
-  alias Eeval.{Accounts.User, Validators}
+  alias Eeval.Accounts.{User, UserValidator}
   import Ecto.Changeset
 
   @attributes ~w(
@@ -29,6 +29,6 @@ defmodule Eeval.Accounts.User do
   def changeset(%User{} = user, attrs \\ %{}) do
     user
     |> cast(attrs, @attributes)
-    |> Validators.User.validate()
+    |> UserValidator.validate()
   end
 end

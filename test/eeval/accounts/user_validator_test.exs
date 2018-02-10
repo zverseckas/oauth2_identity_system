@@ -1,8 +1,9 @@
-defmodule Eeval.Validators.UserTest do
+defmodule Eeval.UserValidatorTest do
   use Eeval.DataCase, async: true
-  alias Eeval.Accounts.User
-  alias Eeval.Validators
+
   import Eeval.Factory
+
+  alias Eeval.Accounts.{User, UserValidator}
 
   describe "validator" do
     setup :changeset
@@ -33,7 +34,7 @@ defmodule Eeval.Validators.UserTest do
 
     @tag invalid: :username_uniqueness
     test "fails with non-unique username", context do
-      refute valid?(context.changeset)
+      assert {:error, _changeset} = Repo.insert(context.changeset)
     end
 
     @tag invalid: :email_presence
@@ -48,7 +49,7 @@ defmodule Eeval.Validators.UserTest do
 
     @tag invalid: :email_uniqueness
     test "fails with non-unique email", context do
-      refute valid?(context.changeset)
+      assert {:error, _changeset} = Repo.insert(context.changeset)
     end
 
     @tag invalid: :password_presence
@@ -68,11 +69,17 @@ defmodule Eeval.Validators.UserTest do
   end
 
   defp changeset(context) do
-    [changeset: User.changeset(%User{}, params(context[:invalid]))]
+    [changeset: User.changeset(%User{}, invalid_params(context[:invalid]))]
   end
 
-  defp params(invalid) do
-    case invalid do
+  def valid?(changeset) do
+    changeset
+    |> UserValidator.validate()
+    |> UserValidator.valid?()
+  end
+
+  defp invalid_params(invalid_attribute) do
+    case invalid_attribute do
       :first_name_presence ->
         params_for(:user, first_name: nil)
 
@@ -111,11 +118,5 @@ defmodule Eeval.Validators.UserTest do
       _ ->
         params_for(:user)
     end
-  end
-
-  def valid?(changeset) do
-    changeset
-    |> Validators.User.validate()
-    |> Validators.User.valid?()
   end
 end
