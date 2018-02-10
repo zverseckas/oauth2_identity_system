@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/zverseckas/oauth2_identity_system.svg?branch=master)](https://travis-ci.org/zverseckas/oauth2_identity_system)
+
 # Eeval
 
 To start your Phoenix server:
