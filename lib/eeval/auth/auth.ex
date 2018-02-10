@@ -3,7 +3,12 @@ defmodule Eeval.Auth do
   alias Comeonin.Bcrypt
   
   def hash_password(%Ecto.Changeset{changes: %{password: password}} = changeset) do
-    change(changeset, Bcrypt.add_hash(password))
+    changes =
+      password
+      |> Bcrypt.add_hash()
+      |> Map.put(:password_confirmation, nil)
+    
+    change(changeset, changes)
   end
 
   def hash_password(%Ecto.Changeset{} = changeset), do: changeset

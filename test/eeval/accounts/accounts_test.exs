@@ -1,73 +1,77 @@
 defmodule Eeval.AccountsTest do
-  use Eeval.DataCase
+  use Eeval.DataCase, async: true
+  alias Eeval.{Accounts, Accounts.User}
+  import Eeval.Factory
 
-  alias Eeval.Accounts
+  @users_count 3
 
-  describe "users" do
-    alias Eeval.Accounts.User
+  setup do
+    [user | _tail] = create_users()
+    [user: user]
+  end
 
-    @valid_attrs %{email: "some email", first_name: "some first_name", last_name: "some last_name", password_hash: "some password_hash", username: "some username"}
-    @update_attrs %{email: "some updated email", first_name: "some updated first_name", last_name: "some updated last_name", password_hash: "some updated password_hash", username: "some updated username"}
-    @invalid_attrs %{email: nil, first_name: nil, last_name: nil, password_hash: nil, username: nil}
-
-    def user_fixture(attrs \\ %{}) do
-      {:ok, user} =
-        attrs
-        |> Enum.into(@valid_attrs)
-        |> Accounts.create_user()
-
-      user
+  describe "accounts" do
+    test "all/0 returns a list of all users" do
+      users = Accounts.all()
+      
+      assert length(users) == @users_count
+      assert [%User{} | _tail] = users
     end
 
-    test "list_users/0 returns all users" do
-      user = user_fixture()
-      assert Accounts.list_users() == [user]
+    test "get/1 returns a user by id", context do
+      assert %User{} = Accounts.get!(context.user.id)
     end
 
-    test "get_user!/1 returns the user with given id" do
-      user = user_fixture()
-      assert Accounts.get_user!(user.id) == user
+    test "get/1 raises an error when user is not found" do
+      assert_raise Ecto.NoResultsError, fn ->
+        Accounts.get!(-1)
+      end
     end
 
-    test "create_user/1 with valid data creates a user" do
-      assert {:ok, %User{} = user} = Accounts.create_user(@valid_attrs)
-      assert user.email == "some email"
-      assert user.first_name == "some first_name"
-      assert user.last_name == "some last_name"
-      assert user.password_hash == "some password_hash"
-      assert user.username == "some username"
+    test "delete/1 deletes a user", context do
+      {:ok, deleted} = Accounts.delete(context.user)
+
+      assert deleted.id == context.user.id
+      assert_raise Ecto.NoResultsError, fn ->
+        Accounts.get!(deleted.id)
+      end
     end
 
-    test "create_user/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Accounts.create_user(@invalid_attrs)
+    test "changeset/1 returns a user changeset", context do
+      assert Accounts.changeset(context.user) ==
+        User.changeset(context.user, %{})
     end
 
-    test "update_user/2 with valid data updates the user" do
-      user = user_fixture()
-      assert {:ok, user} = Accounts.update_user(user, @update_attrs)
-      assert %User{} = user
-      assert user.email == "some updated email"
-      assert user.first_name == "some updated first_name"
-      assert user.last_name == "some updated last_name"
-      assert user.password_hash == "some updated password_hash"
-      assert user.username == "some updated username"
+    test "create/1 creates a user from attributes" do
+      attrs = params_for(:user)
+      {:ok, user} = Accounts.create(attrs)
+
+      assert user.first_name == attrs.first_name
+      assert user.last_name == attrs.last_name
+      assert user.username == attrs.username
+      assert user.email == attrs.email
+      assert user.password_hash
+
+      refute user.password
+      refute user.password_confirmation
     end
 
-    test "update_user/2 with invalid data returns error changeset" do
-      user = user_fixture()
-      assert {:error, %Ecto.Changeset{}} = Accounts.update_user(user, @invalid_attrs)
-      assert user == Accounts.get_user!(user.id)
-    end
+    test "update/2 updates a user from attributes", context do
+      attrs = params_for(:user)
+      {:ok, user} = Accounts.update(context.user, attrs)
 
-    test "delete_user/1 deletes the user" do
-      user = user_fixture()
-      assert {:ok, %User{}} = Accounts.delete_user(user)
-      assert_raise Ecto.NoResultsError, fn -> Accounts.get_user!(user.id) end
-    end
+      assert user.first_name == attrs.first_name
+      assert user.last_name == attrs.last_name
+      assert user.username == attrs.username
+      assert user.email == attrs.email
+      assert user.password_hash
 
-    test "change_user/1 returns a user changeset" do
-      user = user_fixture()
-      assert %Ecto.Changeset{} = Accounts.change_user(user)
+      refute user.password
+      refute user.password_confirmation
     end
+  end
+
+  defp create_users do
+    Enum.map(1..@users_count, fn _ -> insert(:user) end)
   end
 end

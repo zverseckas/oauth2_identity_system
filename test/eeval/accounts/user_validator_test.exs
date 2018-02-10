@@ -1,11 +1,9 @@
 defmodule Eeval.UserValidatorTest do
   use Eeval.DataCase, async: true
-
   import Eeval.Factory
-
   alias Eeval.Accounts.{User, UserValidator}
 
-  describe "validator" do
+  describe "user_validator" do
     setup :changeset
 
     test "succeeds with a valid changeset", context do

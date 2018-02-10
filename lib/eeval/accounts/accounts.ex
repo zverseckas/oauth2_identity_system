@@ -1,13 +1,11 @@
 defmodule Eeval.Accounts do
   import Ecto.Query, warn: false
-  alias Eeval.Repo
-  alias Eeval.Accounts.User
-  alias Eeval.Auth
+  alias Eeval.{Repo, Accounts.User, Auth}
 
   def all, do: Repo.all(User)
   def get!(id), do: Repo.get!(User, id)
   def delete(%User{} = user), do: Repo.delete(user)
-  def change(%User{} = user), do: User.changeset(user, %{})
+  def changeset(%User{} = user), do: User.changeset(user, %{})
 
   def create(attrs \\ %{}) do
     %User{}
