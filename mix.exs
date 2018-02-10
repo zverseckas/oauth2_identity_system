@@ -10,7 +10,15 @@ defmodule Eeval.Mixfile do
       compilers: [:phoenix, :gettext] ++ Mix.compilers,
       start_permanent: Mix.env == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      preferred_cli_env: [
+       "coveralls": :test,
+       "coveralls.detail": :test,
+       "coveralls.html": :test,
+       "coveralls.post": :test,
+       "coveralls.travis": :test
+      ],
+     test_coverage: [tool: ExCoveralls]
     ]
   end
 
@@ -51,6 +59,7 @@ defmodule Eeval.Mixfile do
       {:bcrypt_elixir, "~> 1.0"},
       {:ex_machina, "~> 2.1", only: :test},
       {:faker, "~> 0.9", only: :test},
+      {:excoveralls, "~> 0.8", only: :test},
     ]
   end
 
